@@ -14,8 +14,7 @@ import numpy as np
 # nvcuda_dll_name = 'nvcuda.dll'
 # cudnn_dll_name = 'cudnn64_8.dll'
 # cudnn_version_number = '8'
-from cat_decoder import decode_cats
-from cat_decoder import cats_count
+from cat_decoder import *
 
 def build_discriminator(img_shape):
     model = Sequential()  # 64x64 original shape
@@ -70,7 +69,7 @@ def build_generator(z_dimension, channels):
     model.add(LeakyReLU(alpha=0.2))
 
 
-    model.add(Conv2DTranspose(3, kernel_size=4, strides=2, padding='same',activation='tanh'))
+    model.add(Conv2DTranspose(channels, kernel_size=4, strides=2, padding='same',activation='tanh'))
 
     noise = Input(shape=(z_dimension,))
     img = model(noise)
@@ -78,19 +77,20 @@ def build_generator(z_dimension, channels):
 
 
 def sample_images(epoch):
-    r, c = 4, 5
-    noise = np.random.normal(0, 1, (r * c, z_dimension))
-    gen_imgs = generator.predict(noise)
-    gen_imgs = 0.5 * gen_imgs + 0.5
-    fig, axs = plt.subplots(r, c)
-    cnt = 0
-    for i in range(r):
-        for j in range(c):
-            axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
-            axs[i, j].axis('off')
-            cnt += 1
-    fig.savefig(PATH + "%d.png" % epoch, dpi=200)
-    plt.close()
+    encode_cats(4,5, lambda  a,b : generator.predict(np.random.normal(0, 1, (1, z_dimension))), PATH + "%d.png" % epoch)
+    # r, c = 4, 5
+    # noise = np.random.normal(0, 1, (r * c, z_dimension))
+    # gen_imgs = generator.predict(noise)
+    # gen_imgs = 0.5 * gen_imgs + 0.5
+    # fig, axs = plt.subplots(r, c)
+    # cnt = 0
+    # for i in range(r):
+    #     for j in range(c):
+    #         axs[i, j].imshow(gen_imgs[cnt, :, :, 0], cmap='gray')
+    #         axs[i, j].axis('off')
+    #         cnt += 1
+    # fig.savefig(PATH + "%d.png" % epoch, dpi=200)
+    # plt.close()
 
 
 # load real pictures:
@@ -143,7 +143,7 @@ for epoch in range(epochs):
     idx = np.random.randint(0, cats_count, batch_size)
     imgs = x_train[idx]
     # generated images
-    noise = np.random.normal(0, 1, (batch_size, z_dimension))
+    noise = np.random.normal(0, 1, (batch_size, z_dimension, channels))
     gen_imgs = generator.predict(noise)
     # train discriminator
     d_loss_real = discriminator.train_on_batch(imgs, real)
