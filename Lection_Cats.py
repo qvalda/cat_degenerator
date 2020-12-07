@@ -14,6 +14,8 @@ import numpy as np
 # nvcuda_dll_name = 'nvcuda.dll'
 # cudnn_dll_name = 'cudnn64_8.dll'
 # cudnn_version_number = '8'
+from cat_decoder import decode_cats
+from cat_decoder import cats_count
 
 def build_discriminator(img_shape):
     model = Sequential()  # 64x64 original shape
@@ -41,9 +43,8 @@ def build_discriminator(img_shape):
 
     model.add(Flatten())
     model.add(Dense(1))
-    # model.add(Activation("sigmoid"))
+    #model.add(Activation("sigmoid"))
 
-    model.summary()
     img = Input(shape=img_shape)
     d_pred = model(img)
     return Model(inputs=img, outputs=d_pred)
@@ -69,9 +70,8 @@ def build_generator(z_dimension, channels):
     model.add(LeakyReLU(alpha=0.2))
 
 
-    model.add(Conv2DTranspose(128, kernel_size=4, strides=2, padding='same',activation='tanh'))
+    model.add(Conv2DTranspose(3, kernel_size=4, strides=2, padding='same',activation='tanh'))
 
-    model.summary()
     noise = Input(shape=(z_dimension,))
     img = model(noise)
     return Model(inputs=noise, outputs=img)
@@ -94,29 +94,28 @@ def sample_images(epoch):
 
 
 # load real pictures:
-with open("cat_dataset_64x64.pickle", "rb") as file:
-    x_train = pickle.load(file)
-x_train = x_train.reshape(-1, 64, 64, 1)
-x_train = x_train / 127.5 - 1.  # values -1 to 1
-# x_train = x_train / 128.  # values -1 to 1
+
+x_train = decode_cats()
 
 # model parameters
 PATH = "D:/Temp/cats/"
 img_rows = 64
 img_cols = 64
-channels = 1
+channels = 3
 img_shape = (img_rows, img_cols, channels)
 z_dimension = 64
 optimizer = Adam(0.0005, 0.5)
 
 # build discriminator
 discriminator = build_discriminator(img_shape)
+discriminator.summary()
 discriminator.compile(loss='binary_crossentropy',
                       optimizer=optimizer,
                       metrics=['accuracy'])
 
 # bild generator
 generator = build_generator(z_dimension, channels)
+generator.summary()
 
 # the generator takes noise as input and generates imgs
 z = Input(shape=(z_dimension,))
@@ -141,7 +140,7 @@ fake = np.zeros((batch_size, 1))
 # training
 for epoch in range(epochs):
     # real images
-    idx = np.random.randint(0, x_train.shape[0], batch_size)
+    idx = np.random.randint(0, cats_count, batch_size)
     imgs = x_train[idx]
     # generated images
     noise = np.random.normal(0, 1, (batch_size, z_dimension))

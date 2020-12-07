@@ -8,14 +8,18 @@ cats_count = 15747
 
 def decode_cats():
     cats_files = os.listdir('cats')
-    cats_inputs = []
+    cats_inputs = np.zeros((cats_count,64,64,3))
+    count = 0
 
     for cats_file in cats_files:
         im = Image.open('cats/' + cats_file)
         im2arr = np.array(im)  # im2arr.shape: height x width x channel
         im2arr = im2arr / 127.5 - 1
-        im2arr = im2arr.reshape(-1, 64, 64)
-        cats_inputs.append(im2arr)
+        # im2arr = im2arr.reshape-1, 64, 64)
+        cats_inputs[count]=im2arr
+        count=count+1
+        # if count>=200:
+        #     break
 
     return cats_inputs
 
