@@ -6,6 +6,12 @@ import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 
+# msvcp_dll_name = 'msvcp140.dll'
+# cudart_dll_name = 'cudart64_90.dll'
+# cuda_version_number = '9.0'
+# nvcuda_dll_name = 'nvcuda.dll'
+# cudnn_dll_name = 'cudnn64_8.dll'
+# cudnn_version_number = '8'
 
 def build_discriminator(img_shape):
     model = Sequential() #64x64 original shape
@@ -36,7 +42,7 @@ def build_discriminator(img_shape):
     model.summary()
     img = Input(shape=img_shape)
     d_pred = model(img)
-    return Model(input=img, output=d_pred)
+    return Model(inputs=img, outputs=d_pred)
 
 def build_generator(z_dimension, channels):
     model = Sequential()
@@ -61,7 +67,7 @@ def build_generator(z_dimension, channels):
     model.summary()
     noise = Input(shape=(z_dimension,))
     img = model(noise)
-    return Model(input=noise, output=img)
+    return Model(inputs=noise, outputs=img)
 
 def sample_images(epoch):
     r, c = 4, 5
@@ -75,17 +81,18 @@ def sample_images(epoch):
             axs[i,j].imshow(gen_imgs[cnt, :,:,0], cmap='gray')
             axs[i,j].axis('off')
             cnt += 1
-    fig.savefig(PATH + "output64_k5_z64/%d.png" % epoch, dpi=200)
+    fig.savefig(PATH + "%d.png" % epoch, dpi=200)
     plt.close()
 
 #load real pictures:
 with open("cat_dataset_64x64.pickle", "rb") as file:
     x_train = pickle.load(file)
-x_train = x_train.reshape(-1,64,64,1)       
+x_train = x_train.reshape(-1,64,64,1)
 x_train = x_train / 127.5 - 1.  # values -1 to 1
+#x_train = x_train / 128.  # values -1 to 1
 
 # model parameters
-PATH = "d:/ML/8j_CAT-GAN/"
+PATH = "D:/Temp/cats/"
 img_rows = 64
 img_cols = 64
 channels = 1
@@ -117,7 +124,7 @@ combined.compile(loss='binary_crossentropy',
 # training parameters
 epochs = 30000
 batch_size = 64
-sample_interval=1000 # save some generated pictrures
+sample_interval=100 # save some generated pictrures
 
 # adversarial ground truths
 real = np.ones((batch_size, 1))
@@ -140,7 +147,6 @@ for epoch in range(epochs):
     g_loss = combined.train_on_batch(noise, real)
     # save progress
     if (epoch % sample_interval) == 0:
-        print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % 
-            (epoch, d_loss[0], 100*d_loss[1], g_loss[0]))
+        print ("%d [D loss: %f, acc.: %.2f%%] [G loss: %f]" % (epoch, d_loss[0], 100*d_loss[1], g_loss[0]))
         sample_images(epoch)
-        generator.save("generator_64_64_z64_%d_epoch.h5" % epoch)
+        #generator.save("generator_64_64_z64_%d_epoch.h5" % epoch)
