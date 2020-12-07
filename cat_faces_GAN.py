@@ -12,6 +12,8 @@ import numpy as np
 # nvcuda_dll_name = 'nvcuda.dll'
 # cudnn_dll_name = 'cudnn64_8.dll'
 # cudnn_version_number = '8'
+from cat_decoder import *
+
 
 def build_discriminator(img_shape):
     model = Sequential() #64x64 original shape
@@ -83,6 +85,9 @@ def sample_images(epoch):
             cnt += 1
     fig.savefig(PATH + "%d.png" % epoch, dpi=200)
     plt.close()
+
+ccc = decode_cats()
+encode_cats(20,20, lambda a,b:ccc[(a+1)*(b+1)], "dwadwa")
 
 #load real pictures:
 with open("cat_dataset_64x64.pickle", "rb") as file:
