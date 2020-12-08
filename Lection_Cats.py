@@ -5,8 +5,7 @@ generator, discriminator, combined = create_network()
 
 
 def sample_images(epoch):
-    encode_cats(4, 5, lambda a, b: generator.predict(np.random.normal(0, 1, (1, z_dimension))),
-                samples_directory + "%d.png" % epoch)
+    encode_cats(lambda: generator.predict(np.random.normal(0, 1, (1, z_dimension))), samples_directory + "%d.png" % epoch)
 
 
 def learn():
@@ -54,4 +53,6 @@ def load():
         cat = generator.predict(np.random.normal(0, 1, (1, z_dimension))).reshape(64, 64, -1)
         encode_cat(cat, samples_directory + "/generated/%d.jpg" % number)
 
-load()
+
+learn()
+#load()
