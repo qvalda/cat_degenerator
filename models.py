@@ -7,7 +7,8 @@ img_rows = 64
 img_cols = 64
 channels = 3
 z_dimension = 64
-samples_directory = "D:/Temp/cats/"
+epochs_samples = "epochs_samples/"
+generated_samples = "generated_samples/"
 
 
 def build_discriminator():
