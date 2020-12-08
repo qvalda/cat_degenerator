@@ -6,12 +6,6 @@ import matplotlib.pyplot as plt
 import pickle
 import numpy as np
 
-# msvcp_dll_name = 'msvcp140.dll'
-# cudart_dll_name = 'cudart64_90.dll'
-# cuda_version_number = '9.0'
-# nvcuda_dll_name = 'nvcuda.dll'
-# cudnn_dll_name = 'cudnn64_8.dll'
-# cudnn_version_number = '8'
 from cat_decoder import *
 
 
@@ -94,7 +88,6 @@ with open("cat_dataset_64x64.pickle", "rb") as file:
     x_train = pickle.load(file)
 x_train = x_train.reshape(-1,64,64,1)
 x_train = x_train / 127.5 - 1.  # values -1 to 1
-#x_train = x_train / 128.  # values -1 to 1
 
 # model parameters
 PATH = "D:/Temp/cats/"
