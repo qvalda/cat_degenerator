@@ -47,7 +47,7 @@ def calculate_fid(model, images1, images2):
 
 # prepare the inception v3 model
 model = InceptionV3(include_top=False, pooling='avg', input_shape=(299, 299, 3))
-# load cifar10 images
+
 cats = get_real_cats()
 fake_cats = get_fake_cats()
 # shuffle(cats)
