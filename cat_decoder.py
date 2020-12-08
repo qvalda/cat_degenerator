@@ -20,6 +20,28 @@ def decode_cats():
     return cats_inputs
 
 
+def get_fake_cats():
+    return get_cats("generated_samples")
+
+
+def get_real_cats():
+    return get_cats("cats")
+
+
+def get_cats(name):
+    cats_files = [f for f in os.listdir(name) if f.endswith('.jpg')]
+    cats_count = len(cats_files)
+    cats_inputs = np.zeros((cats_count, 64, 64, 3))
+    count = 0
+
+    for cats_file in cats_files:
+        im = Image.open(name+'/' + cats_file)
+        cats_inputs[count] = im
+        count = count + 1
+
+    return cats_inputs
+
+
 def encode_cats(generator, filename):
     height = 4
     width = 5
