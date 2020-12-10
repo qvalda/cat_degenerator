@@ -1,0 +1,8 @@
+Computations were done on:
+CUDA 10.0
+Video card: nvidia rtx 2080ti
+Memory: 32 GB
+
+Used versions of libraries:
+tensorflow-gpu 1.14.0
+keras 2.3.1
