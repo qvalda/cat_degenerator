@@ -31,11 +31,14 @@ def learn():
         gen_imgs = generator.predict(noise)
         # train discriminator
         d_loss_real = discriminator.train_on_batch(imgs, real)
-        #random 0-0.2
-        if epoch<20000:
-            d_loss_fake = discriminator.train_on_batch(gen_imgs, fake)
-        else:
-            d_loss_fake = discriminator.train_on_batch(gen_imgs, almost_fake)
+
+        # #random 0-0.2
+        # if epoch<20000:
+        #     d_loss_fake = discriminator.train_on_batch(gen_imgs, fake)
+        # else:
+        #     d_loss_fake = discriminator.train_on_batch(gen_imgs, almost_fake)
+        d_loss_fake = discriminator.train_on_batch(gen_imgs, fake)
+
         d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
         # train generator
         noise = np.random.normal(0, 1, (batch_size, z_dimension))
@@ -59,5 +62,5 @@ def load():
         encode_cat(cat, generated_samples + "/%d.jpg" % number)
 
 
-learn()
-#load()
+#learn()
+load()
