@@ -1,5 +1,6 @@
-# example of calculating the frechet inception distance in Keras
-import numpy
+import os
+from PIL import Image
+import numpy as np
 from numpy import cov
 from numpy import trace
 from numpy import iscomplexobj
@@ -8,11 +9,36 @@ from numpy.random import shuffle
 from scipy.linalg import sqrtm
 from keras.applications.inception_v3 import InceptionV3
 from keras.applications.inception_v3 import preprocess_input
-from keras.datasets.mnist import load_data
 from skimage.transform import resize
-from keras.datasets import cifar10
-from cat_decoder import *
 
+img_rows = 64
+img_cols = 64
+channels = 3
+latent_dim = 64
+epochs_samples = "epochs_samples/"
+generated_samples = "generated_samples/"
+
+
+def get_fake_cats():
+    return get_cats("generated_samples")
+
+
+def get_real_cats():
+    return get_cats("cats")
+
+
+def get_cats(name):
+    cats_files = [f for f in os.listdir(name) if f.endswith('.jpg')]
+    cats_count = len(cats_files)
+    cats_inputs = np.zeros((cats_count, img_rows, img_cols, channels))
+    count = 0
+
+    for cats_file in cats_files:
+        im = Image.open(name + '/' + cats_file)
+        cats_inputs[count] = im
+        count = count + 1
+
+    return cats_inputs
 
 # scale an array of images to a new size
 def scale_images(images, new_shape):
@@ -34,7 +60,7 @@ def calculate_fid(model, images1, images2):
     mu1, sigma1 = act1.mean(axis=0), cov(act1, rowvar=False)
     mu2, sigma2 = act2.mean(axis=0), cov(act2, rowvar=False)
     # calculate sum squared difference between means
-    ssdiff = numpy.sum((mu1 - mu2) ** 2.0)
+    ssdiff = np.sum((mu1 - mu2) ** 2.0)
     # calculate sqrt of product between cov
     covmean = sqrtm(sigma1.dot(sigma2))
     # check and correct imaginary numbers from sqrt
