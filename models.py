@@ -1,6 +1,8 @@
-from keras import Sequential, Input, Model
+from decorator import init
+from keras import Sequential, Input, Model, layers
 from keras.optimizers import Adam
-from keras.layers import Conv2D, LeakyReLU, Dropout, BatchNormalization, Flatten, Dense, Activation, Reshape, \
+from keras.layers import Conv2D, LeakyReLU, Dropout, Conv2DTranspose, BatchNormalization, Flatten, Dense, Activation, \
+    Reshape, \
     UpSampling2D
 
 img_rows = 64
@@ -13,63 +15,74 @@ generated_samples = "generated_samples/"
 
 def build_discriminator():
     img_shape = (img_rows, img_cols, channels)
+    return Sequential([
 
-    model = Sequential()  # 64x64 original shape
+        layers.Conv2D(32, (5, 5), strides=(2, 2), padding='same', input_shape=img_shape),
+        # layers.BatchNormalization(),#momentum=0.8
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(Conv2D(32, kernel_size=5, strides=2, input_shape=img_shape, padding="same"))  # 32x32
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dropout(0.25))
+        layers.Dropout(0.25),
 
-    model.add(Conv2D(64, kernel_size=5, strides=2, padding="same"))  # 16x16
-    model.add(BatchNormalization(momentum=0.8))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dropout(0.25))
+        layers.Conv2D(64, (5, 5), strides=(2, 2), padding='same'),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(Conv2D(128, kernel_size=5, strides=2, padding="same"))  # 8x8
-    model.add(BatchNormalization(momentum=0.8))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dropout(0.25))
+        layers.Dropout(0.25),
 
-    model.add(Conv2D(256, kernel_size=5, strides=1, padding="same"))
-    model.add(BatchNormalization(momentum=0.8))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Dropout(0.25))
+        layers.Conv2D(128, (5, 5), strides=(2, 2), padding="same"),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(Flatten())
-    model.add(Dense(1))
-    model.add(Activation("sigmoid"))
+        layers.Dropout(0.25),
 
-    model.summary()
-    img = Input(shape=img_shape)
-    d_pred = model(img)
-    return Model(input=img, output=d_pred)
+        layers.Conv2D(256, (5, 5), strides=(2, 2), padding="same"),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
+
+        layers.Dropout(0.25),
+
+        layers.Conv2D(512, (5, 5), strides=(2, 2), padding="same"),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
+
+        layers.Dropout(0.25),
+
+        layers.Flatten(),
+        layers.Dense(1),
+        layers.Activation("sigmoid"),
+    ], name="discriminator")
+    # return Model(input=img, output=d_pred)
 
 
 def build_generator():
-    model = Sequential()
+    return Sequential([
+        layers.Dense(8*8*512, input_shape=(z_dimension,)),
+        layers.LeakyReLU(alpha=0.2),
+        layers.Reshape((8, 8, 512)),
 
-    model.add(Dense(128 * 16 * 16, input_dim=z_dimension))
-    model.add(LeakyReLU(alpha=0.2))
-    model.add(Reshape((16, 16, 128)))
+        layers.UpSampling2D(),
+        layers.Conv2DTranspose(256, (5, 5), padding='same'),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(UpSampling2D())
-    model.add(Conv2D(128, kernel_size=5, padding="same"))
-    model.add(BatchNormalization(momentum=0.8))
-    model.add(LeakyReLU(alpha=0.2))
+        layers.UpSampling2D(),
+        layers.Conv2DTranspose(128, (5, 5), padding='same'),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(UpSampling2D())
-    model.add(Conv2D(64, kernel_size=5, padding="same"))
-    model.add(BatchNormalization(momentum=0.8))
-    model.add(LeakyReLU(alpha=0.2))
+        layers.UpSampling2D(),
+        layers.Conv2DTranspose(64, (5, 5), padding='same'),
+        layers.BatchNormalization(momentum=0.8),
+        layers.LeakyReLU(alpha=0.2),
 
-    model.add(Conv2D(channels, kernel_size=5, padding="same"))
-    model.add(Activation("tanh"))
+        # layers.UpSampling2D(),
+        # layers.Conv2DTranspose(64, (5, 5), padding='same'),
+        # layers.BatchNormalization(momentum=0.8),
+        # layers.LeakyReLU(alpha=0.2),
 
-    model.summary()
-    noise = Input(shape=(z_dimension,))
-    img = model(noise)
-    return Model(input=noise, output=img)
+        layers.Conv2DTranspose(channels, (5, 5), padding='same', activation='tanh'),
 
+    ], name="generator")
 
 def build_combined(generator, discriminator):
     # the generator takes noise as input and generates imgs

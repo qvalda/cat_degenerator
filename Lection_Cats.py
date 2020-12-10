@@ -12,13 +12,14 @@ def learn():
     cats_train_set = decode_cats()
     cats_count = cats_train_set.shape[0]
     # training parameters
-    epochs = 40000
-    batch_size = 128
+    epochs = 30000
+    batch_size = 100
     sample_interval = 100  # save some generated pictures
 
     # adversarial ground truths
     real = np.ones((batch_size, 1))
     fake = np.zeros((batch_size, 1))
+    almost_fake = np.random.ranf(batch_size) * 0.3
 
     # training
     for epoch in range(epochs + 1):
@@ -30,7 +31,11 @@ def learn():
         gen_imgs = generator.predict(noise)
         # train discriminator
         d_loss_real = discriminator.train_on_batch(imgs, real)
-        d_loss_fake = discriminator.train_on_batch(gen_imgs, fake)
+        #random 0-0.2
+        if epoch<20000:
+            d_loss_fake = discriminator.train_on_batch(gen_imgs, fake)
+        else:
+            d_loss_fake = discriminator.train_on_batch(gen_imgs, almost_fake)
         d_loss = 0.5 * np.add(d_loss_real, d_loss_fake)
         # train generator
         noise = np.random.normal(0, 1, (batch_size, z_dimension))
@@ -46,7 +51,7 @@ def learn():
 
 
 def load():
-    epoch = 40000
+    epoch = 30000
     generator.load_weights("generator_%d_epoch.h5" % epoch)
 
     for number in range(10000):
@@ -54,5 +59,5 @@ def load():
         encode_cat(cat, generated_samples + "/%d.jpg" % number)
 
 
-#learn()
-load()
+learn()
+#load()

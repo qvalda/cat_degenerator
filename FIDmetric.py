@@ -50,10 +50,10 @@ model = InceptionV3(include_top=False, pooling='avg', input_shape=(299, 299, 3))
 
 cats = get_real_cats()
 fake_cats = get_fake_cats()
-# shuffle(cats)
+shuffle(cats)
 # shuffle(fake_cats)
-cats = cats[:5000]
-fake_cats = fake_cats[:5000]
+cats = cats[:10000]
+fake_cats = fake_cats[:10000]
 print('Loaded', cats.shape,fake_cats.shape)
 # convert integer to floating point values
 images1 = cats.astype('float32')
