@@ -1,5 +1,6 @@
 /venv/
 /.idea/
 /cats/*.jpg
+/test_cats/*.jpg
 /epochs_samples/*.jpg
 /generated_samples/*.jpg

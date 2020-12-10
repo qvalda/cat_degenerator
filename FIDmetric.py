@@ -24,7 +24,7 @@ def get_fake_cats():
 
 
 def get_real_cats():
-    return get_cats("cats")
+    return get_cats("test_cats")
 
 
 def get_cats(name):
@@ -77,9 +77,9 @@ model = InceptionV3(include_top=False, pooling='avg', input_shape=(299, 299, 3))
 cats = get_real_cats()
 fake_cats = get_fake_cats()
 shuffle(cats)
-# shuffle(fake_cats)
-cats = cats[:10000]
-fake_cats = fake_cats[:10000]
+shuffle(fake_cats)
+cats = cats[:5747]
+fake_cats = fake_cats[:5747]
 print('Loaded', cats.shape,fake_cats.shape)
 # convert integer to floating point values
 images1 = cats.astype('float32')

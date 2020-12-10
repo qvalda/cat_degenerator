@@ -18,31 +18,31 @@ def build_discriminator():
     return Sequential([
 
         layers.Conv2D(32, (5, 5), strides=(2, 2), padding='same', input_shape=img_shape),
-        layers.BatchNormalization(),
+        # layers.BatchNormalization(),#momentum=0.8
         layers.LeakyReLU(alpha=0.2),
 
         layers.Dropout(0.25),
 
         layers.Conv2D(64, (5, 5), strides=(2, 2), padding='same'),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
         layers.Dropout(0.25),
 
         layers.Conv2D(128, (5, 5), strides=(2, 2), padding="same"),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
         layers.Dropout(0.25),
 
         layers.Conv2D(256, (5, 5), strides=(2, 2), padding="same"),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
         layers.Dropout(0.25),
 
         layers.Conv2D(512, (5, 5), strides=(2, 2), padding="same"),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
         layers.Dropout(0.25),
@@ -60,21 +60,25 @@ def build_generator():
         layers.LeakyReLU(alpha=0.2),
         layers.Reshape((8, 8, 512)),
 
+        layers.UpSampling2D(),
         layers.Conv2DTranspose(256, (5, 5), padding='same'),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
+        layers.UpSampling2D(),
         layers.Conv2DTranspose(128, (5, 5), padding='same'),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
+        layers.UpSampling2D(),
         layers.Conv2DTranspose(64, (5, 5), padding='same'),
-        layers.BatchNormalization(),
+        layers.BatchNormalization(momentum=0.8),
         layers.LeakyReLU(alpha=0.2),
 
-        layers.Conv2DTranspose(32, (5, 5), padding='same'),
-        layers.BatchNormalization(),
-        layers.LeakyReLU(alpha=0.2),
+        # layers.UpSampling2D(),
+        # layers.Conv2DTranspose(64, (5, 5), padding='same'),
+        # layers.BatchNormalization(momentum=0.8),
+        # layers.LeakyReLU(alpha=0.2),
 
         layers.Conv2DTranspose(channels, (5, 5), padding='same', activation='tanh'),
 
